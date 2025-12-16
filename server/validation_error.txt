@@ -1,0 +1,17 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+Error: Prisma schema validation - (validate wasm)
+Error code: P1012
+[1;91merror[0m: [1mError validating field `item` in model `Purchase`: The relation field `item` on model `Purchase` is missing an opposite relation field on the model `Item`. Either run `prisma format` or add it manually.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:168[0m
+[1;94m   | [0m
+[1;94m167 | [0m  itemId           String
+[1;94m168 | [0m  [1;91mitem             Item            @relation(fields: [itemId], references: [id])[0m
+[1;94m169 | [0m  userId           String
+[1;94m   | [0m
+
+Validation Error Count: 1
+[Context: validate]
+
+Prisma CLI Version : 5.22.0
