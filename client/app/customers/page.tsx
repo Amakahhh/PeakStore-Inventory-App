@@ -54,7 +54,6 @@ export default function CustomersPage() {
              <PageHeader 
                 title="Customer Database" 
                 subtitle="Manage client profiles and view purchase history."
-                icon={<User className="h-6 w-6 text-blue-400" />}
              />
 
              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
