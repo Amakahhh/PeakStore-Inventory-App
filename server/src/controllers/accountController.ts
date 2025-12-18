@@ -9,8 +9,12 @@ export const getAccounts = async (req: Request, res: Response) => {
       orderBy: { name: 'asc' }
     });
     res.json(accounts);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch accounts' });
+  } catch (error: any) {
+    res.status(500).json({ 
+        error: 'Failed to fetch accounts',
+        details: error.message,
+        code: error.code
+    });
   }
 };
 
@@ -21,8 +25,12 @@ export const createAccount = async (req: Request, res: Response) => {
       data: { name, type, details }
     });
     res.json(account);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create account' });
+  } catch (error: any) {
+    res.status(500).json({ 
+        error: 'Failed to create account',
+        details: error.message,
+        code: error.code
+    });
   }
 };
 
@@ -33,7 +41,11 @@ export const deleteAccount = async (req: Request, res: Response) => {
       where: { id }
     });
     res.json({ message: 'Account deleted' });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to delete account' });
+  } catch (error: any) {
+    res.status(500).json({ 
+        error: 'Failed to delete account',
+        details: error.message,
+        code: error.code
+    });
   }
 };

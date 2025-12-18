@@ -244,7 +244,11 @@ export const createInvoice = async (req: Request, res: Response) => {
         res.json(newInvoice);
     } catch (error: any) {
         console.error('Invoice error:', error);
-        res.status(400).json({ error: error.message || 'Failed to create invoice' });
+        res.status(400).json({ 
+            error: error.message || 'Failed to create invoice',
+            details: error.message,
+            code: error.code
+        });
     }
 };
 
@@ -272,8 +276,12 @@ export const getDailySales = async (req: Request, res: Response) => {
         });
         
         res.json(sales);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch sales' });
+    } catch (error: any) {
+        res.status(500).json({ 
+            error: 'Failed to fetch sales',
+            details: error.message,
+            code: error.code
+        });
     }
 };
 
@@ -289,7 +297,11 @@ export const getInvoices = async (req: Request, res: Response) => {
             take: 50
         });
         res.json(invoices);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch invoices' });
+    } catch (error: any) {
+        res.status(500).json({ 
+            error: 'Failed to fetch invoices',
+            details: error.message,
+            code: error.code
+        });
     }
 };

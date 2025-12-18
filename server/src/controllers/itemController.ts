@@ -9,9 +9,13 @@ export const getItems = async (req: Request, res: Response) => {
       orderBy: { name: 'asc' },
     });
     res.json(items);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to fetch items:", error);
-    res.status(500).json({ error: 'Failed to fetch items' });
+    res.status(500).json({ 
+      error: 'Failed to fetch items',
+      details: error.message,
+      code: error.code
+    });
   }
 };
 
@@ -49,9 +53,13 @@ export const createItem = async (req: Request, res: Response) => {
       },
     });
     res.json(item);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to create item' });
+    res.status(500).json({ 
+      error: 'Failed to create item',
+      details: error.message,
+      code: error.code
+    });
   }
 };
 
