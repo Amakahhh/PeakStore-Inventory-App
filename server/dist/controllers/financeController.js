@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.transferFunds = exports.getAccountBalances = void 0;
+exports.getProfitStats = exports.transferFunds = exports.getAccountBalances = void 0;
 const client_1 = require("@prisma/client");
 const prisma_1 = __importDefault(require("../lib/prisma"));
 // Get Account Balances
@@ -80,3 +80,42 @@ const transferFunds = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.transferFunds = transferFunds;
+// Get Profit Stats
+const getProfitStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { startDate, endDate } = req.query;
+        const dateFilter = {};
+        if (startDate && endDate) {
+            dateFilter.createdAt = {
+                gte: new Date(startDate),
+                lte: new Date(endDate)
+            };
+        }
+        const sales = yield prisma_1.default.sale.findMany({
+            where: dateFilter,
+            select: {
+                totalAmount: true,
+                costPriceAtTime: true,
+                quantity: true
+            }
+        });
+        let totalRevenue = 0;
+        let totalCost = 0;
+        sales.forEach(sale => {
+            totalRevenue += Number(sale.totalAmount);
+            totalCost += (Number(sale.costPriceAtTime) * sale.quantity);
+        });
+        const totalProfit = totalRevenue - totalCost;
+        res.json({
+            totalRevenue,
+            totalCost,
+            totalProfit,
+            margin: totalRevenue > 0 ? ((totalProfit / totalRevenue) * 100).toFixed(2) : 0
+        });
+    }
+    catch (error) {
+        console.error("Profit Stats Error:", error);
+        res.status(500).json({ error: 'Failed to calculate profit' });
+    }
+});
+exports.getProfitStats = getProfitStats;

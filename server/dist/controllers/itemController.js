@@ -42,6 +42,7 @@ const createItem = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 wholesalePrice: new client_1.Prisma.Decimal(wholesalePrice),
                 retailPrice: new client_1.Prisma.Decimal(retailPrice),
                 rollPrice: new client_1.Prisma.Decimal(rollPrice || 0),
+                costPrice: new client_1.Prisma.Decimal(req.body.costPrice || 0),
                 wholesaleQuantity: Number(wholesaleQuantity || 1),
                 rollsPerCarton: Number(rollsPerCarton || 0),
                 unitsPerRoll: Number(unitsPerRoll || 0),
@@ -70,6 +71,8 @@ const updateItem = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             data.retailPrice = new client_1.Prisma.Decimal(data.retailPrice);
         if (data.rollPrice)
             data.rollPrice = new client_1.Prisma.Decimal(data.rollPrice);
+        if (data.costPrice)
+            data.costPrice = new client_1.Prisma.Decimal(data.costPrice);
         const item = yield prisma_1.default.item.update({
             where: { id },
             data,
@@ -122,14 +125,33 @@ const restockItem = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const { itemId, userId, quantity, unitType, costPrice, paymentAccountId, notes } = req.body;
         // unitType: WHOLESALE (Carton) | ROLL
+        const item = yield prisma_1.default.item.findUnique({ where: { id: itemId } });
+        if (!item)
+            return res.status(404).json({ error: 'Item not found' });
         const qty = Number(quantity);
-        const cost = new client_1.Prisma.Decimal(costPrice);
-        const totalCost = cost.mul(qty);
+        const inputCost = new client_1.Prisma.Decimal(costPrice);
+        const totalCost = inputCost.mul(qty);
+        // Normalize Cost Price (Update Master Cost to be Cost Per Retail Unit)
+        let normalizedUnitCost = item.costPrice; // Fallback to existing
+        if (unitType === 'WHOLESALE') {
+            const unitsInCarton = item.rollsPerCarton > 0
+                ? (item.rollsPerCarton * item.unitsPerRoll)
+                : item.retailPerCarton;
+            if (unitsInCarton > 0)
+                normalizedUnitCost = inputCost.div(unitsInCarton);
+        }
+        else if (unitType === 'ROLL') {
+            if (item.unitsPerRoll > 0)
+                normalizedUnitCost = inputCost.div(item.unitsPerRoll);
+        }
+        else {
+            normalizedUnitCost = inputCost;
+        }
         // Transaction: Create Purchase & Update Stock
         const result = yield prisma_1.default.$transaction([
             prisma_1.default.purchase.create({
                 data: {
-                    itemId, userId, quantity: qty, unitType, costPrice: cost, totalCost,
+                    itemId, userId, quantity: qty, unitType, costPrice: inputCost, totalCost,
                     paymentAccountId: paymentAccountId || null,
                     notes
                 }
@@ -139,7 +161,8 @@ const restockItem = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 data: {
                     // Update appropriate stock level
                     currentStockCartons: unitType === 'WHOLESALE' ? { increment: qty } : undefined,
-                    currentStockRolls: unitType === 'ROLL' ? { increment: qty } : undefined
+                    currentStockRolls: unitType === 'ROLL' ? { increment: qty } : undefined,
+                    costPrice: normalizedUnitCost // Update master cost price
                 }
             })
         ]);

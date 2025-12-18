@@ -17,7 +17,7 @@ const client_1 = require("@prisma/client");
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const createInvoice = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { userId, customerName, notes, paymentMethod, paymentAccountId, items } = req.body;
+        const { userId, customerName, customerId, notes, paymentMethod, paymentAccountId, items } = req.body;
         // items: [{ itemId, quantity, unitType }]
         // unitType: 'WHOLESALE' | 'ROLL' | 'RETAIL'
         // 1. Calculate totals & Validate Stock (Optimistic check)
@@ -30,7 +30,8 @@ const createInvoice = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             const invoice = yield tx.invoice.create({
                 data: {
                     userId,
-                    customerName,
+                    customerName, // Snapshot
+                    customerId: customerId || null, // Link if provided
                     notes,
                     paymentMethod,
                     paymentAccountId: paymentAccountId || null,
@@ -193,14 +194,31 @@ const createInvoice = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 }
                 const lineTotal = price.mul(qty);
                 invoiceTotal = invoiceTotal.add(lineTotal);
+                // Cost Calculation (Base Unit Cost * Units in this Sale)
+                // item.costPrice is the BASE UNIT COST
+                let costPriceForSaleUnit = new client_1.Prisma.Decimal(0);
+                if (saleType === 'WHOLESALE') { // Carton
+                    const unitsInCarton = item.rollsPerCarton > 0
+                        ? (item.rollsPerCarton * item.unitsPerRoll)
+                        : item.retailPerCarton;
+                    costPriceForSaleUnit = item.costPrice.mul(unitsInCarton);
+                }
+                else if (saleType === 'ROLL') {
+                    costPriceForSaleUnit = item.costPrice.mul(item.unitsPerRoll);
+                }
+                else { // Retail/Unit
+                    costPriceForSaleUnit = item.costPrice;
+                }
                 yield tx.sale.create({
                     data: {
                         invoiceId: invoice.id,
                         itemId,
                         userId,
+                        customerId: customerId || null, // Link sale to customer too for easy history
                         quantity: qty,
                         saleType: saleType,
                         priceAtTime: price,
+                        costPriceAtTime: costPriceForSaleUnit, // Store the cost of the SPECIFIC UNIT being sold (e.g. Cost of 1 Carton)
                         totalAmount: lineTotal,
                     }
                 });

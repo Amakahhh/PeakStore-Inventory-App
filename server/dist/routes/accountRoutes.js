@@ -10,5 +10,6 @@ router.post('/', accountController_1.createAccount);
 router.delete('/:id', accountController_1.deleteAccount);
 // Financials
 router.get('/balances', financeController_1.getAccountBalances);
+router.get('/profit', financeController_1.getProfitStats);
 router.post('/transfer', financeController_1.transferFunds);
 exports.default = router;

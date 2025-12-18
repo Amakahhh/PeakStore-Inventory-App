@@ -10,6 +10,7 @@ const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
 const itemRoutes_1 = __importDefault(require("./routes/itemRoutes"));
 const salesRoutes_1 = __importDefault(require("./routes/salesRoutes"));
 const accountRoutes_1 = __importDefault(require("./routes/accountRoutes"));
+const customerRoutes_1 = __importDefault(require("./routes/customerRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
@@ -19,10 +20,10 @@ app.get('/', (req, res) => {
     res.send('Shop Management API is running');
 });
 app.use('/auth', authRoutes_1.default);
-app.use('/auth', authRoutes_1.default);
 app.use('/items', itemRoutes_1.default);
 app.use('/sales', salesRoutes_1.default);
 app.use('/accounts', accountRoutes_1.default);
+app.use('/customers', customerRoutes_1.default);
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
