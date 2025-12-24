@@ -277,10 +277,17 @@ export const getDailySales = async (req: Request, res: Response) => {
         
         res.json(sales);
     } catch (error: any) {
+        console.error('Failed to fetch sales:', {
+            message: error.message,
+            code: error.code,
+            meta: error.meta,
+            stack: error.stack
+        });
         res.status(500).json({ 
             error: 'Failed to fetch sales',
             details: error.message,
-            code: error.code
+            code: error.code,
+            meta: error.meta
         });
     }
 };

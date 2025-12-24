@@ -25,11 +25,17 @@ export const syncUser = async (req: Request, res: Response) => {
 
         res.status(200).json(user);
     } catch (error: any) {
-        console.error('Error syncing user:', error);
+        console.error('Error syncing user:', {
+            message: error.message,
+            code: error.code,
+            meta: error.meta,
+            stack: error.stack
+        });
         res.status(500).json({ 
             error: 'Failed to sync user',
             details: error.message,
-            code: error.code 
+            code: error.code,
+            meta: error.meta
         });
     }
 };

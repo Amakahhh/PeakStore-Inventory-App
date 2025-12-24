@@ -10,11 +10,17 @@ export const getItems = async (req: Request, res: Response) => {
     });
     res.json(items);
   } catch (error: any) {
-    console.error("Failed to fetch items:", error);
+    console.error("Failed to fetch items:", {
+        message: error.message,
+        code: error.code,
+        meta: error.meta,
+        stack: error.stack
+    });
     res.status(500).json({ 
       error: 'Failed to fetch items',
       details: error.message,
-      code: error.code
+      code: error.code,
+      meta: error.meta
     });
   }
 };
@@ -54,11 +60,17 @@ export const createItem = async (req: Request, res: Response) => {
     });
     res.json(item);
   } catch (error: any) {
-    console.error(error);
+    console.error("Failed to create item:", {
+        message: error.message,
+        code: error.code,
+        meta: error.meta,
+        stack: error.stack
+    });
     res.status(500).json({ 
       error: 'Failed to create item',
       details: error.message,
-      code: error.code
+      code: error.code,
+      meta: error.meta
     });
   }
 };
