@@ -145,20 +145,20 @@ export default function InventoryPage() {
         setFormData({
             name: item.name,
             category: item.category || '',
-            hasCarton: true,
-            hasRoll: item.rollsPerCarton > 0,
-            hasUnit: true,
+            hasCarton: item.soldInCartons ?? true,
+            hasRoll: item.soldInRolls ?? false,
+            hasUnit: item.soldInUnits ?? true,
             
             rollsPerCarton: item.rollsPerCarton || '',
             unitsPerRoll: item.unitsPerRoll || '',
             unitsPerCarton: item.retailPerCarton || '',
             
             purchaseUnit: 'CARTON',
-            purchaseCost: '',
+            purchaseCost: item.costPrice ? String(item.costPrice) : '',
             
-            wholesalePrice: item.wholesalePrice,
-            rollPrice: item.rollPrice,
-            retailPrice: item.retailPrice,
+            wholesalePrice: item.wholesalePrice || '',
+            rollPrice: item.rollPrice || '',
+            retailPrice: item.retailPrice || '',
             
             stockCartons: item.currentStockCartons,
             stockRolls: item.currentStockRolls,
@@ -227,6 +227,11 @@ export default function InventoryPage() {
                 unitsPerRoll: upr,
                 retailPerCarton: retailPerC,
                 
+                // Explicitly track which units are sold
+                soldInCartons: formData.hasCarton,
+                soldInRolls: formData.hasRoll,
+                soldInUnits: formData.hasUnit,
+                
                 currentStockCartons: Number(formData.stockCartons || 0),
                 currentStockRolls: Number(formData.stockRolls || 0),
                 currentStockUnits: Number(formData.stockUnits || 0)
@@ -242,8 +247,9 @@ export default function InventoryPage() {
 
             resetForm();
             fetchItems();
-        } catch(e) { 
-            alert('Failed to save item');
+        } catch(e: any) { 
+            const message = e.response?.data?.error || 'Failed to save item';
+            alert(message);
             console.error(e);
         }
     };
@@ -352,9 +358,9 @@ export default function InventoryPage() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredItems.map((item: any) => {
-                        const hasC = item.wholesalePrice > 0;
-                        const hasR = item.rollsPerCarton > 0;
-                        const hasU = item.retailPrice > 0;
+                        const hasC = item.soldInCartons ?? (item.wholesalePrice > 0);
+                        const hasR = item.soldInRolls ?? (item.rollsPerCarton > 0);
+                        const hasU = item.soldInUnits ?? (item.retailPrice > 0);
                         
                         return (
                             <div key={item.id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all group">

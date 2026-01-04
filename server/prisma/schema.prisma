@@ -83,6 +83,11 @@ model Item {
   unitsPerRoll        Int      @default(0) 
   retailPerCarton     Int      @default(1) // Total units in a carton
   
+  // Unit Type Flags - Track which units this item is sold in
+  soldInCartons       Boolean  @default(true)
+  soldInRolls         Boolean  @default(false)
+  soldInUnits         Boolean  @default(true)
+  
   // Inventory State
   currentStockCartons Int      @default(0)
   currentStockRolls   Int      @default(0)

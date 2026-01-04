@@ -32,7 +32,8 @@ export const createItem = async (req: Request, res: Response) => {
         wholesalePrice, retailPrice, rollPrice,
         wholesaleQuantity, 
         rollsPerCarton, unitsPerRoll, retailPerCarton, // Configuration
-        currentStockCartons, currentStockRolls, currentStockUnits 
+        currentStockCartons, currentStockRolls, currentStockUnits,
+        soldInCartons, soldInRolls, soldInUnits // Unit type flags
     } = req.body;
     
     // Auto-calculate retailPerCarton if possible (for consistency)
@@ -52,6 +53,11 @@ export const createItem = async (req: Request, res: Response) => {
         rollsPerCarton: Number(rollsPerCarton || 0),
         unitsPerRoll: Number(unitsPerRoll || 0),
         retailPerCarton: finalRetailPerCarton,
+        
+        // Store which units this item is sold in
+        soldInCartons: soldInCartons ?? true,
+        soldInRolls: soldInRolls ?? false,
+        soldInUnits: soldInUnits ?? true,
         
         currentStockCartons: Number(currentStockCartons || 0),
         currentStockRolls: Number(currentStockRolls || 0),
@@ -80,19 +86,49 @@ export const updateItem = async (req: Request, res: Response) => {
         const { id } = req.params;
         const data = req.body;
         
-        // Handle decimal conversions
-        if (data.wholesalePrice) data.wholesalePrice = new Prisma.Decimal(data.wholesalePrice);
-        if (data.retailPrice) data.retailPrice = new Prisma.Decimal(data.retailPrice);
-        if (data.rollPrice) data.rollPrice = new Prisma.Decimal(data.rollPrice);
-        if (data.costPrice) data.costPrice = new Prisma.Decimal(data.costPrice);
+        // Handle decimal conversions - check for undefined/null, not falsy values
+        if (data.wholesalePrice !== undefined && data.wholesalePrice !== null) {
+            data.wholesalePrice = new Prisma.Decimal(data.wholesalePrice);
+        }
+        if (data.retailPrice !== undefined && data.retailPrice !== null) {
+            data.retailPrice = new Prisma.Decimal(data.retailPrice);
+        }
+        if (data.rollPrice !== undefined && data.rollPrice !== null) {
+            data.rollPrice = new Prisma.Decimal(data.rollPrice);
+        }
+        if (data.costPrice !== undefined && data.costPrice !== null) {
+            data.costPrice = new Prisma.Decimal(data.costPrice);
+        }
+        
+        // Boolean fields - ensure they're passed through properly
+        if (data.soldInCartons !== undefined) {
+            data.soldInCartons = Boolean(data.soldInCartons);
+        }
+        if (data.soldInRolls !== undefined) {
+            data.soldInRolls = Boolean(data.soldInRolls);
+        }
+        if (data.soldInUnits !== undefined) {
+            data.soldInUnits = Boolean(data.soldInUnits);
+        }
         
         const item = await prisma.item.update({
             where: { id },
             data,
         });
         res.json(item);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to update item' });
+    } catch (error: any) {
+        console.error("Failed to update item:", {
+            message: error.message,
+            code: error.code,
+            meta: error.meta,
+            stack: error.stack
+        });
+        res.status(500).json({ 
+            error: 'Failed to update item',
+            details: error.message,
+            code: error.code,
+            meta: error.meta
+        });
     }
 };
 

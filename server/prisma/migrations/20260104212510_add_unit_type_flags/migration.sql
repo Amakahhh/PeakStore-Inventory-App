@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Item" ADD COLUMN     "soldInCartons" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "soldInRolls" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "soldInUnits" BOOLEAN NOT NULL DEFAULT true;
