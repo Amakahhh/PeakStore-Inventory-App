@@ -517,7 +517,7 @@ export default function InventoryPage() {
                                 {formData.hasRoll && formData.hasUnit && (
                                     <div>
                                         <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">How many Units in a Roll?</label>
-                                        <input type="number" value={formData.unitsPerRoll} onChange={e => setFormData({...formData, unitsPerRoll: e.target.value})} className="w-full p-3 rounded-lg border border-gray-200 font-bold focus:ring-black focus:border-black" placeholder="e.g. 12" required />
+                                        <input type="number" value={formData.unitsPerRoll} onChange={e => setFormData({...formData, unitsPerRoll: e.target.value})} className="w-full p-3 rounded-lg border border-gray-200 font-bold focus:ring-black focus:border-black" placeholder="e.g. 12" />
                                     </div>
                                 )}
                                 {formData.hasCarton && formData.hasUnit && !formData.hasRoll && (
