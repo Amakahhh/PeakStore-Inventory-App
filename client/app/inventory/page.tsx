@@ -421,7 +421,13 @@ export default function InventoryPage() {
                 action={
                     !showForm ? (
                         <button 
-                            onClick={() => setShowForm(true)}
+                            onClick={() => {
+                                // Pre-fill category if viewing a specific category
+                                if (selectedCategory && selectedCategory !== 'all') {
+                                    setFormData(prev => ({...prev, category: selectedCategory}));
+                                }
+                                setShowForm(true);
+                            }}
                             className="bg-black text-white px-6 py-3 rounded-xl flex items-center hover:bg-gray-800 shadow-lg transition-transform active:scale-95 font-bold text-sm"
                         >
                             <Plus className="mr-2 h-4 w-4" /> Add Item
