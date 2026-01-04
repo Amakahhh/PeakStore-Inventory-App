@@ -187,3 +187,25 @@ export const restockItem = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Failed to restock item' });
     }
 };
+
+export const deleteItem = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        
+        // Check if item has any sales history
+        const salesCount = await prisma.sale.count({ where: { itemId: id } });
+        if (salesCount > 0) {
+            res.status(400).json({ 
+                error: 'Cannot delete item with sales history. Consider archiving instead.',
+                salesCount 
+            });
+            return;
+        }
+        
+        await prisma.item.delete({ where: { id } });
+        res.json({ message: 'Item deleted successfully' });
+    } catch (error: any) {
+        console.error("Delete Item Error:", error);
+        res.status(500).json({ error: 'Failed to delete item', details: error.message });
+    }
+};

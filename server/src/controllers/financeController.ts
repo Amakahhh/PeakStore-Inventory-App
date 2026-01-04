@@ -119,3 +119,72 @@ export const getProfitStats = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Failed to calculate profit' });
     }
 };
+
+// Get Shop Worth (Inventory Value at Cost + Cash in Accounts)
+export const getShopWorth = async (req: Request, res: Response) => {
+    try {
+        // 1. Calculate Inventory Value at Cost
+        const items = await prisma.item.findMany({
+            select: {
+                costPrice: true,
+                currentStockCartons: true,
+                currentStockRolls: true,
+                currentStockUnits: true,
+                rollsPerCarton: true,
+                unitsPerRoll: true,
+                retailPerCarton: true
+            }
+        });
+
+        let totalInventoryValue = 0;
+        items.forEach(item => {
+            // Convert all stock to units
+            let unitsFromCartons = 0;
+            if (item.rollsPerCarton > 0 && item.unitsPerRoll > 0) {
+                unitsFromCartons = item.currentStockCartons * item.rollsPerCarton * item.unitsPerRoll;
+            } else if (item.retailPerCarton > 0) {
+                unitsFromCartons = item.currentStockCartons * item.retailPerCarton;
+            }
+            
+            let unitsFromRolls = 0;
+            if (item.unitsPerRoll > 0) {
+                unitsFromRolls = item.currentStockRolls * item.unitsPerRoll;
+            }
+            
+            const totalUnits = unitsFromCartons + unitsFromRolls + item.currentStockUnits;
+            totalInventoryValue += totalUnits * Number(item.costPrice);
+        });
+
+        // 2. Calculate Total Cash in Accounts
+        const accounts = await prisma.paymentAccount.findMany({
+            include: {
+                invoices: { select: { totalAmount: true } },
+                purchases: { select: { totalCost: true } },
+                outgoingTransactions: { select: { amount: true } },
+                incomingTransactions: { select: { amount: true } }
+            }
+        });
+
+        let totalCash = 0;
+        accounts.forEach(acc => {
+            const totalSales = acc.invoices.reduce((sum, inv) => sum + Number(inv.totalAmount), 0);
+            const totalPurchases = acc.purchases.reduce((sum, pur) => sum + Number(pur.totalCost), 0);
+            const totalOutgoing = acc.outgoingTransactions.reduce((sum, tx) => sum + Number(tx.amount), 0);
+            const totalIncoming = acc.incomingTransactions.reduce((sum, tx) => sum + Number(tx.amount), 0);
+            
+            totalCash += (totalSales + totalIncoming) - (totalPurchases + totalOutgoing);
+        });
+
+        const shopWorth = totalInventoryValue + totalCash;
+
+        res.json({
+            inventoryValue: totalInventoryValue,
+            cashInHand: totalCash,
+            shopWorth
+        });
+
+    } catch (error) {
+        console.error("Shop Worth Error:", error);
+        res.status(500).json({ error: 'Failed to calculate shop worth' });
+    }
+};

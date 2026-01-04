@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, ShoppingCart, Package, History, Wallet, LogOut, X } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, History, Wallet, LogOut, X, TrendingUp } from 'lucide-react';
 
 const menuItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -9,6 +9,7 @@ const menuItems = [
     { name: 'Inventory', href: '/inventory', icon: Package },
     { name: 'History', href: '/history', icon: History },
     { name: 'Financials', href: '/finance', icon: Wallet },
+    { name: 'Shop Worth', href: '/finance/worth', icon: TrendingUp },
 ];
 
 export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
