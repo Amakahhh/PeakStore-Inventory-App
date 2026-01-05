@@ -21,10 +21,12 @@ export default function FinancePage() {
     
     const [loading, setLoading] = useState(true);
     const [profitStats, setProfitStats] = useState<any>(null);
+    const [worthData, setWorthData] = useState<any>(null);
 
     useEffect(() => {
         fetchBalances();
         fetchProfit();
+        fetchWorth();
     }, []);
 
     const fetchBalances = async () => {
@@ -45,6 +47,15 @@ export default function FinancePage() {
             setProfitStats(res.data);
         } catch (error) {
             console.error("Profit Fetch Error:", error);
+        }
+    };
+
+    const fetchWorth = async () => {
+        try {
+            const res = await axios.get(`${API_URL}/accounts/worth`);
+            setWorthData(res.data);
+        } catch (error) {
+            console.error("Worth Fetch Error:", error);
         }
     };
 
@@ -95,16 +106,16 @@ export default function FinancePage() {
                 }
             />
 
-            {/* Profit Summary Card */}
-            {profitStats && (
-                <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-black text-white p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
+            {/* Profit & Worth Summary Cards */}
+            {(profitStats || worthData) && (
+                <div className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="bg-black text-white p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group min-h-[200px] flex flex-col justify-between">
                          <div className="absolute top-0 right-0 p-8 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
                              <TrendingUp className="h-32 w-32" />
                          </div>
                          <div className="relative z-10">
-                             <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-2">Total Profit</h2>
-                             <div className="text-4xl font-black tracking-tighter mb-2">
+                             <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Total Profit</h2>
+                             <div className="text-3xl font-black tracking-tighter mb-3">
                                  ₦{Number(profitStats.totalProfit).toLocaleString()}
                              </div>
                              <div className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/20 text-white text-xs font-bold backdrop-blur-sm">
@@ -113,19 +124,34 @@ export default function FinancePage() {
                          </div>
                     </div>
 
-                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center">
-                         <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Total Revenue</h2>
-                         <div className="text-3xl font-black text-gray-900 tracking-tight">
+                     <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center min-h-[200px]">
+                         <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Total Revenue</h2>
+                         <div className="text-2xl font-black text-gray-900 tracking-tight">
                              ₦{Number(profitStats.totalRevenue).toLocaleString()}
                          </div>
                      </div>
 
-                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center">
-                         <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Cost of Goods</h2>
-                         <div className="text-3xl font-black text-gray-900 tracking-tight">
+                     <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center min-h-[200px]">
+                         <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Cost of Goods</h2>
+                         <div className="text-2xl font-black text-gray-900 tracking-tight">
                              ₦{Number(profitStats.totalCost).toLocaleString()}
                          </div>
                      </div>
+
+                     {worthData && (
+                         <div className="bg-gradient-to-br from-emerald-500 to-green-600 text-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden group cursor-pointer min-h-[200px] flex flex-col justify-between" onClick={() => router.push('/finance/worth')}>
+                             <div className="absolute top-0 right-0 p-8 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
+                                 <TrendingUp className="h-32 w-32" />
+                             </div>
+                             <div className="relative z-10">
+                                 <h2 className="text-xs font-bold uppercase tracking-widest text-white/80 mb-3">Shop Worth</h2>
+                                 <div className="text-3xl font-black tracking-tighter">
+                                     ₦{Number(worthData.shopWorth).toLocaleString()}
+                                 </div>
+                                 <p className="text-xs text-white/70 mt-3 font-medium">Inventory + Cash</p>
+                             </div>
+                         </div>
+                     )}
                 </div>
             )}
 

@@ -141,28 +141,47 @@ export default function ShopWorthPage() {
                     </div>
 
                     {/* Info Card */}
-                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-6">
-                        <div className="flex items-start">
-                            <DollarSign className="h-5 w-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+                        <div className="flex items-start gap-4">
+                            <div className="bg-gray-100 p-3 rounded-xl flex-shrink-0">
+                                <DollarSign className="h-6 w-6 text-gray-700" />
+                            </div>
                             <div>
-                                <h4 className="font-bold text-blue-900 mb-1">How is Shop Worth calculated?</h4>
-                                <p className="text-sm text-blue-700">
-                                    <strong>Inventory Value</strong> = Total units in stock × Cost price per unit<br/>
-                                    <strong>Cash in Accounts</strong> = Sales revenue - Restock costs - Withdrawals + Transfers in<br/>
-                                    <strong>Shop Worth</strong> = Inventory Value + Cash in Accounts
-                                </p>
+                                <h4 className="font-black text-gray-900 mb-4 text-lg">How is Shop Worth calculated?</h4>
+                                <div className="space-y-3 text-sm text-gray-700">
+                                    <div className="flex items-start gap-3">
+                                        <span className="font-bold text-gray-900 min-w-fit">Inventory Value</span>
+                                        <span className="text-gray-600">= Total units in stock × Cost price per unit</span>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <span className="font-bold text-gray-900 min-w-fit">Cash in Accounts</span>
+                                        <span className="text-gray-600">= Sales revenue - Restock costs - Withdrawals + Transfers in</span>
+                                    </div>
+                                    <div className="flex items-start gap-3 pt-2 border-t border-gray-200">
+                                        <span className="font-bold text-gray-900 min-w-fit">Shop Worth</span>
+                                        <span className="text-gray-600">= Inventory Value + Cash in Accounts</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Growth Tip */}
-                    <div className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl p-6">
-                        <h4 className="font-bold text-lg mb-2">📈 Track Your Growth</h4>
-                        <p className="text-white/80 text-sm">
-                            Check this page regularly to monitor your shop's growth. As you make sales and restock wisely, 
-                            your total worth should steadily increase over time. Take note of today's value and compare it 
-                            in 2 weeks to see your progress!
-                        </p>
+                    <div className="bg-black text-white rounded-2xl p-8 shadow-lg border border-gray-900 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-5 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
+                            <TrendingUp className="h-32 w-32" />
+                        </div>
+                        <div className="flex items-start gap-4 relative z-10">
+                            <div className="text-3xl flex-shrink-0">📈</div>
+                            <div>
+                                <h4 className="font-black text-white text-lg mb-2">Track Your Growth</h4>
+                                <p className="text-gray-300 text-sm leading-relaxed">
+                                    Check this page regularly to monitor your shop's growth. As you make sales and restock wisely, 
+                                    your total worth should steadily increase over time. Take note of today's value and compare it 
+                                    in 2 weeks to see your progress!
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             ) : (
